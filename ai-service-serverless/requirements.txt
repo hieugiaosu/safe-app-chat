@@ -1,0 +1,6 @@
+modal==0.64.4
+py_vncorenlp==0.1.4
+emoji==2.13.2
+numpy==1.26.4
+pandas==2.2.2
+scikit-learn==1.5.1
