@@ -1,1 +1,57 @@
-__pycache__
+# Python bytecode files
+*.pyc
+*.pyo
+__pycache__/
+
+# Virtual environment directories
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Distribution / packaging directories
+build/
+dist/
+*.egg-info/
+
+# pytest cache directory
+.cache/
+
+# IDE / editor directories
+.vscode/
+.idea/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Python-specific temporary files
+*.log
+*.pot
+*.pydevproject
+
+# Local configuration files
+*.env
+*.venv
+
+# macOS system files
+.DS_Store
+
+# Windows system files
+Thumbs.db
+
+# coverage report files
+.coverage
+.coverage.*
+
+# mypy cache
+.mypy_cache/
+
+# pytype cache
+.pytype/
+
+# pipenv files
+Pipfile.lock
+
+# conda environments
+*.conda
