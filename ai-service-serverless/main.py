@@ -74,7 +74,6 @@ def main():
     def toxic_classify():
         try:
             content = request.json['message']
-            print(content)
             content = preprocess(content)
             if content is None:
                 return {"error": "Can't process the content"}
