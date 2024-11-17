@@ -40,3 +40,12 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Add this to your App.css or a separate CSS file */
+.full-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
