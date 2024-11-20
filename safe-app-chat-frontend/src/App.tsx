@@ -2,6 +2,8 @@ import React from "react";
 import LandingPage from "./pages/LandingPage";
 import { Routes, Route } from "react-router-dom";
 import Chat from "./pages/Chat/ChatPage";
+import TestRealTimeDB from "./pages/TestRealTimeDB";
+
 const App: React.FC = () => {
   return (
     <Routes>
@@ -10,6 +12,8 @@ const App: React.FC = () => {
 
       {/* Chat route */}
       <Route path="/chat" element={<Chat />} />
+
+      <Route path="/testRealTimeDB" element={<TestRealTimeDB />} />
     </Routes>
     
   );
