@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../firebaseConfig";
-import { ref, set, onValue } from "firebase/database";
+import { ref, set, onValue, DataSnapshot } from "firebase/database";
 
 const TestRealTimeDB: React.FC = () => {
   const [inputText, setInputText] = useState<string>("");
@@ -19,7 +19,7 @@ const TestRealTimeDB: React.FC = () => {
   useEffect(() => {
     const textRef = ref(db, "test"); // Path in the Realtime Database
     // Listen for changes in the database
-    onValue(textRef, (snapshot) => {
+    onValue(textRef, (snapshot: DataSnapshot) => {
       const data = snapshot.val();
       if (data) {
         setReceivedText(data); // Update the received text
