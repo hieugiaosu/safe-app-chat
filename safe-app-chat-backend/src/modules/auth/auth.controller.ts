@@ -2,7 +2,7 @@ import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { AuthInfoDto } from './dto/auth.dto';
-import { SignInDto } from './dto/payload.dto';
+import { SignInDto, SignUpDto } from './dto/payload.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -24,9 +24,9 @@ export class AuthController {
         return this.authService.signIn(payload);
     }
 
-    // @HttpCode(HttpStatus.OK)
-    // @Post('register')
-    // signUp(@Body() payload: SignUpDto) {
-    //     return this.authService.signUp(payload);
-    // }
+    @HttpCode(HttpStatus.OK)
+    @Post('register')
+    signUp(@Body() payload: SignUpDto) {
+        return this.authService.signUp(payload);
+    }
 }
