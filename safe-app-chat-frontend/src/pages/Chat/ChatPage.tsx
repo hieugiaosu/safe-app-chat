@@ -1,50 +1,95 @@
+import { useState } from "react";
+import ChatCard from "./ChatCard";
+import ChatContent from "./ChatContent";
+
+interface Message {
+  senderId: string;
+  content: string;
+  type: string;
+  timestamp: number;
+}
+
+interface ChatData {
+  [key: string]: Record<string, Message>;
+}
+
+const chatData: ChatData = {
+  chatId1: {
+    messageId1: {
+      senderId: "userId1",
+      content: "Hello!",
+      type: "text",
+      timestamp: 1699999999,
+    },
+    messageId2: {
+      senderId: "userId2",
+      content: "Hi there!",
+      type: "text",
+      timestamp: 1699999999,
+    },
+  },
+  chatId2: {
+    messageId1: {
+      senderId: "userId3",
+      content: "What's up?",
+      type: "text",
+      timestamp: 1699999988,
+    },
+  },
+};
 
 const ChatPage = () => {
+  const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
+  const currentUserId = "userId1";
+
+  const chats = [
+    {
+      chatId: "chatId1",
+      chatName: "John Doe",
+      lastMessage: "Hi there!",
+      lastMessageTimestamp: 1699999999,
+    },
+    {
+      chatId: "chatId2",
+      chatName: "Jane Smith",
+      lastMessage: "What's up?",
+      lastMessageTimestamp: 1699999988,
+    },
+  ];
+
+  const handleChatClick = (chatId: string) => {
+    setSelectedChatId(chatId);
+  };
+
   return (
-    <div className="flex h-screen">
+    <div className="chat-view flex h-screen">
       {/* Sidebar */}
-      <div className="w-1/4 bg-gray-100 border-r p-4">
-        <input
-          type="text"
-          placeholder="Tìm kiếm"
-          className="w-full p-2 mb-4 rounded border"
-        />
-        <ul className="space-y-2">
-          {["An", "Khá Bá", "Emmie", "Bill Gates", "Victoria H"].map((name, i) => (
-            <li
-              key={i}
-              className="flex items-center justify-between p-2 rounded hover:bg-gray-200 cursor-pointer"
-            >
-              <div className="flex items-center space-x-2">
-                <div className="bg-gray-300 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
-                  {name[0]}
-                </div>
-                <span>{name}</span>
-              </div>
-              <span className="text-xs text-gray-500">
-                {i % 2 === 0 ? "Đang hoạt động" : "Không hoạt động"}
-              </span>
-            </li>
-          ))}
-        </ul>
-        <button className="w-full bg-purple-600 text-white p-2 rounded mt-4 hover:bg-purple-700">
-          Đăng xuất
-        </button>
+      <div className="sidebar w-1/3 border-r overflow-y-auto">
+        {chats.map((chat) => (
+          <ChatCard
+            key={chat.chatId}
+            chatId={chat.chatId}
+            chatName={chat.chatName}
+            lastMessage={chat.lastMessage}
+            lastMessageTimestamp={chat.lastMessageTimestamp}
+            onClick={handleChatClick}
+          />
+        ))}
       </div>
 
-      {/* Chat Window */}
-      <div className="flex-1 p-4 flex flex-col">
-        <div className="flex-grow"></div>
-        <div className="border-t p-4 flex items-center">
-          <input
-            type="text"
-            placeholder="Nhập tin nhắn..."
-            className="flex-grow p-2 border rounded"
+      {/* Chat Area */}
+      <div className="w-2/3">
+        {selectedChatId ? (
+          <ChatContent
+            chatId={selectedChatId}
+            messages={chatData[selectedChatId]}
+            currentUserId={currentUserId}
           />
-          <button className="ml-4 bg-purple-600 text-white p-2 rounded hover:bg-purple-700">
-            Gửi
-          </button>
-        </div>
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-gray-500">Select a chat to start messaging</p>
+          </div>
+        )}
       </div>
     </div>
   );
