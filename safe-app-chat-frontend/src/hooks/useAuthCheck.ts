@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios, { isAxiosError } from 'axios';
+import { isAxiosError } from 'axios';
 import axiosInstance from '../api/axiosInstance';
 import { useUser } from '../context/UserContext';
 
