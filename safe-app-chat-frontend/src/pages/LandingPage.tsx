@@ -1,6 +1,6 @@
+import { MessageSquare, Shield } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
-import { Shield, MessageSquare } from "lucide-react";
 
 const LandingPage: React.FC = () => {
   return (
