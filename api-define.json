@@ -1,0 +1,198 @@
+{
+    "openapi": "3.0.0",
+    "paths": {
+        "/": {
+            "get": {
+                "operationId": "AppController_getHello",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "operationId": "AuthController_signIn",
+                "summary": "Login",
+                "description": "Login with email and password",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SignInDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthInfoDto"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Auth"
+                ]
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "operationId": "AuthController_signUp",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SignUpDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "Auth"
+                ]
+            }
+        },
+        "/users/me": {
+            "get": {
+                "operationId": "UserController_getUserMe",
+                "summary": "Get user me",
+                "description": "Get user me",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Get user me successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserDto"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Users"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        }
+    },
+    "info": {
+        "title": "Example",
+        "description": "The API description",
+        "version": "1.0",
+        "contact": {}
+    },
+    "tags": [],
+    "servers": [],
+    "components": {
+        "securitySchemes": {
+            "bearer": {
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+                "type": "http"
+            }
+        },
+        "schemas": {
+            "SignInDto": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "example": "example@gmail.com",
+                        "description": "email"
+                    },
+                    "password": {
+                        "type": "string",
+                        "example": "T@123456",
+                        "description": "password include 8 characters, 1 number, 1 uppercase, 1 lowercase, 1 special character"
+                    }
+                },
+                "required": [
+                    "email",
+                    "password"
+                ]
+            },
+            "UserDto": {
+                "type": "object",
+                "properties": {
+                    "_id": {
+                        "type": "string"
+                    },
+                    "firstName": {
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "updatedAt": {
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "_id",
+                    "firstName",
+                    "lastName",
+                    "email",
+                    "createdAt",
+                    "updatedAt"
+                ]
+            },
+            "AuthInfoDto": {
+                "type": "object",
+                "properties": {
+                    "accessToken": {
+                        "type": "string",
+                        "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+                        "description": "access token"
+                    },
+                    "user": {
+                        "description": "user",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/UserDto"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "accessToken",
+                    "user"
+                ]
+            },
+            "SignUpDto": {
+                "type": "object",
+                "properties": {}
+            }
+        }
+    }
+}
