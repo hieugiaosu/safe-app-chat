@@ -9,6 +9,7 @@ import appConfig from './config/app.config';
 import authConfig from './config/auth.config';
 import databaseConfig from './config/database.config';
 import { AuthModule } from './modules/auth/auth.module';
+import { FirebaseModule } from './modules/firebase/firebase.module';
 import { UserModule } from './modules/user/user.module';
 
 @Module({
@@ -31,6 +32,7 @@ import { UserModule } from './modules/user/user.module';
     }),
     AuthModule,
     UserModule,
+    FirebaseModule,
   ],
   controllers: [AppController],
   providers: [AppService],
