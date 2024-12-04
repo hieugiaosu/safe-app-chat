@@ -43,6 +43,7 @@ const ChatContent: React.FC<ChatContentProps> = ({
                 {dayjs.unix(message.timestamp).format("hh:mm A")}
               </span>
             </div>
+            
           </div>
         );
       })}

@@ -23,4 +23,8 @@ export class UserService {
         const mappedUser = this.mapper.map(userDoc, User, UserDto);
         return mappedUser;
     }
+
+    async getUserByEmail(email: string) {
+        return this.userRepo.findByEmail(email);
+    }
 }
