@@ -74,7 +74,7 @@ export class ChatService {
 
   async getAllConversationByUser(userId: string) {
     return await this.conversationModel.findOne({
-      members: { $all: [user1Id, user2Id] },
+      members: { $all: [userId] },
     });
   }
 }

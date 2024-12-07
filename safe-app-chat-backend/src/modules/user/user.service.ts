@@ -25,6 +25,12 @@ export class UserService {
     }
 
     async getUserByEmail(email: string) {
-        return this.userRepo.findByEmail(email);
+        const userDoc = await this.userRepo.findByEmail(email);
+
+        if (!userDoc) {
+            throw new NotFoundException('User not found');
+        }
+        const mappedUser = this.mapper.map(userDoc, User, UserDto);
+        return mappedUser;
     }
 }

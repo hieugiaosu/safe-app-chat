@@ -29,12 +29,12 @@ export class UserController {
     }
 
     @ApiOperation({
-        summary: 'Get user me',
-        description: 'Get user me',
+        summary: 'Get user by email',
+        description: 'Get user by email',
     })
     @ApiResponse({
         status: 200,
-        description: 'Get user me successfully',
+        description: 'Get user by email successfully',
         type: UserDto
     })
     @Get('getUserByEmail')

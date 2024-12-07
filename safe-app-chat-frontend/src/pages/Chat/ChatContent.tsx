@@ -10,7 +10,7 @@ type Message = {
 
 type ChatContentProps = {
   chatId: string;
-  messages: Record<string, Message>; // Messages keyed by messageId
+  messages: Message[]; // Messages keyed by messageId
   currentUserId: string; // Logged-in user ID
 };
 

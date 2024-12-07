@@ -23,7 +23,6 @@ const RegisterPage: React.FC = () => {
     
     e.preventDefault();
     try {
-      console.log("asdf");
       const response = await axiosInstance.post('/auth/register', { email, password, firstName, lastName });
       console.log(response);
       

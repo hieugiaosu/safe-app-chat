@@ -37,6 +37,9 @@ export class ChatController {
   async getAllConversationByUser(
     @Query('userId') userId: string,
   ) {
-    return this.chatService.getAllConversationByUser(userId);
+    const conversations = await this.chatService.getAllConversationByUser(userId);
+  
+    // Return an empty array if no conversations are found
+    return conversations || [];
   }
 }

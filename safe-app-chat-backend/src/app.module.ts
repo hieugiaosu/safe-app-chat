@@ -11,6 +11,7 @@ import databaseConfig from './config/database.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { FirebaseModule } from './modules/firebase/firebase.module';
 import { UserModule } from './modules/user/user.module';
+import { ChatModule } from './modules/chat/chat.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { UserModule } from './modules/user/user.module';
     AuthModule,
     UserModule,
     FirebaseModule,
+    ChatModule
   ],
   controllers: [AppController],
   providers: [AppService],
