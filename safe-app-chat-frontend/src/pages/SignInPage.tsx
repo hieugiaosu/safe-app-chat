@@ -12,6 +12,8 @@ const SignInPage: React.FC = () => {
 
   useEffect(() => {
     if (user && user.accessToken) {
+      console.log(user);
+      
       navigate('/chat');
     }
   }, [user, navigate]);
@@ -22,6 +24,8 @@ const SignInPage: React.FC = () => {
       const response = await axiosInstance.post('/auth/login', { email, password });
       const { accessToken, user } = response.data;
       setUser(user);
+      console.log(user);
+      localStorage.setItem('user', user);
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('tokenExpiry', (Date.now() + 3600000).toString()); // 1 hour from now
       navigate('/chat');

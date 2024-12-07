@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: 'https://safe-app-chat.onrender.com/',
+  baseURL: 'http://localhost:3000',
 });
 
 // Add a request interceptor to include the token in the headers
