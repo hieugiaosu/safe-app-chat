@@ -34,6 +34,7 @@ export class ChatService {
   }
 
   async sendFirstMessage(senderId: string, recipientId: string, text: string): Promise<Message> {
+    console.log(text);
     
     // Step 1: Check if a conversation already exists between the two users
     let conversation = await this.conversationModel.findOne({
@@ -66,15 +67,28 @@ export class ChatService {
     return savedMessage;
   }
 
-  async getConversation(user1Id: string, user2Id:string) {
-    return await this.conversationModel.findOne({
+  async getConversation(user1Id: string, user2Id: string) {
+    const conversation = await this.conversationModel.findOne({
       members: { $all: [user1Id, user2Id] },
     });
+    return conversation || []; // Return an empty array if no data is found
+  }
+  
+  async getAllConversationByUser(userId: string) {
+    const conversations = await this.conversationModel.find({
+      members: userId, // Adjusted to find all conversations that include this user
+    });
+    return conversations.length > 0 ? conversations : []; // Return an empty array if no data is found
   }
 
-  async getAllConversationByUser(userId: string) {
-    return await this.conversationModel.findOne({
-      members: { $all: [userId] },
-    });
+  async getAllMessagesByChatId(chatId: string) {
+    console.log(chatId);
+    
+    const messages = await this.messageModel.find({
+      conversationId: chatId
+    })
+    console.log(messages);
+    
+    return messages.length > 0 ? messages : []
   }
 }

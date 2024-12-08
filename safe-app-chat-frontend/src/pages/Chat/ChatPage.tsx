@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useUser } from "../../context/UserContext";
 import ChatCard from "./ChatCard";
 import ChatContent from "./ChatContent";
@@ -6,13 +6,12 @@ import axiosInstance from "../../api/axiosInstance";
 
 interface Message {
   senderId: string;
-  content: string;
-  type: string;
-  timestamp: number;
+  text: string;
+  createdAt: Date;
 }
 
 interface Chat {
-  chatId: string;
+  _id: string;
   chatName: string;
   lastMessage: string;
   lastMessageTimestamp: number;
@@ -25,7 +24,8 @@ const ChatPage = () => {
   const [searchEmail, setSearchEmail] = useState("");
   const [searchError, setSearchError] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
-  const [newChatUser, setNewChatUser] = useState<{ id: string; name: string } | null>(null);
+  const [chatPartner, setChatPartner] = useState<{ id: string; name: string } | null>(null);
+  const messageInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // Fetch user's chat list when component loads
@@ -33,6 +33,8 @@ const ChatPage = () => {
       try {
         if (user?._id) {
           const response = await axiosInstance.get(`/chat/getAllConversationByUser?userId=${user._id}`);
+          console.log(response.data);
+          
           setChatList(response.data); // Assuming response.data contains the list of chats.
         }
       } catch (err) {
@@ -47,12 +49,14 @@ const ChatPage = () => {
     setSelectedChatId(chatId);
     setMessages([]); // Clear messages temporarily
     fetchMessages(chatId);
-    setNewChatUser(null); // Clear newChatUser as we're switching to an existing chat
+    setChatPartner(null); // Clear chatPartner as we're switching to an existing chat
   };
 
   const fetchMessages = async (chatId: string) => {
+    console.log(chatId);
+    
     try {
-      const response = await axiosInstance.get(`/chat/getMessagesByChatId/${chatId}`);
+      const response = await axiosInstance.get(`/chat/getAllMessagesByChatId?chatId=${chatId}`);
       setMessages(response.data); // Assuming response.data contains messages for the chat.
     } catch (err) {
       console.error("Error fetching messages:", err);
@@ -67,11 +71,11 @@ const ChatPage = () => {
       // Fetch user by email
       const userResponse = await axiosInstance.get(`/users/getUserByEmail?email=${searchEmail}`);
       const foundUser = userResponse.data;
-      let newChatUser = {
+      let chatPartner = {
         id: foundUser._id,
         name: `${foundUser.firstName} ${foundUser.lastName}`
       }
-      setNewChatUser(newChatUser); // Set the new chat user
+      setChatPartner(chatPartner); // Set the new chat user
       setMessages([]); // Clear messages for the new chat
 
       // Check for an existing conversation
@@ -95,35 +99,57 @@ const ChatPage = () => {
     }
   };
 
-  const handleSendMessage = async (messageContent: string) => {
-    if (!newChatUser && !selectedChatId) return;
+  const handleSendMessage = async () => {
+    const messageContent = messageInputRef.current?.value.trim();
+    console.log(chatPartner);
+    console.log(selectedChatId);
+    console.log(user);
+    
+    if (!chatPartner && !selectedChatId) return;
 
     try {
-      let chatIdToUse = selectedChatId;
-
-      if (newChatUser && !selectedChatId) {
-        // Create a new conversation if it doesn't exist
-        const newConversationResponse = await axiosInstance.post(`/chat/createConversation`, {
-          user1: user?._id,
-          user2: newChatUser.id,
-        });
-
-        chatIdToUse = newConversationResponse.data.chatId;
-        setSelectedChatId(chatIdToUse);
+      // Start a new Conversation
+      if (!selectedChatId) {
+        await axiosInstance.post('/chat/sendFirstMessage',{
+          recipientId: chatPartner?.id,
+          senderId: user?._id,
+          text: messageContent
+        })
       }
-
-      // Send the message
-      await axiosInstance.post(`/chat/sendMessage`, {
-        chatId: chatIdToUse,
-        senderId: user?._id,
-        content: messageContent,
-      });
-
-      // Refresh messages after sending
-      fetchMessages(chatIdToUse!);
-    } catch (err) {
-      console.error("Error sending message:", err);
+    } catch (error) {
+      console.error("Error sending message:", error);
     }
+    
+    
+    
+    
+
+    // try {
+    //   let chatIdToUse = selectedChatId;
+
+    //   if (chatPartner && !selectedChatId) {
+    //     // Create a new conversation if it doesn't exist
+    //     const newConversationResponse = await axiosInstance.post(`/chat/createConversation`, {
+    //       user1: user?._id,
+    //       user2: chatPartner.id,
+    //     });
+
+    //     chatIdToUse = newConversationResponse.data.chatId;
+    //     setSelectedChatId(chatIdToUse);
+    //   }
+
+    //   // Send the message
+    //   await axiosInstance.post(`/chat/sendMessage`, {
+    //     chatId: chatIdToUse,
+    //     senderId: user?._id,
+    //     content: messageContent,
+    //   });
+
+    //   // Refresh messages after sending
+    //   fetchMessages(chatIdToUse!);
+    // } catch (err) {
+    //   console.error("Error sending message:", err);
+    // }
   };
 
   return (
@@ -161,8 +187,8 @@ const ChatPage = () => {
 
         {chatList.map((chat) => (
           <ChatCard
-            key={chat.chatId}
-            chatId={chat.chatId}
+            key={chat._id}
+            chatId={chat._id}
             chatName={chat.chatName}
             lastMessage={chat.lastMessage}
             lastMessageTimestamp={chat.lastMessageTimestamp}
@@ -173,15 +199,15 @@ const ChatPage = () => {
 
       {/* Chat Area */}
       <div className="w-2/3 flex flex-col h-screen">
-      <p>{JSON.stringify(newChatUser)}</p>
+      <p>{JSON.stringify(chatPartner)}</p>
 
-        {newChatUser || selectedChatId ? (
+        {chatPartner || selectedChatId ? (
           <>
             <div className="flex items-center justify-between p-4 border-b bg-gray-100">
               <h2 className="text-lg font-bold">
-                {newChatUser
-                  ? newChatUser.name
-                  : chatList.find((chat) => chat.chatId === selectedChatId)?.chatName || "Unknown Chat"}
+                {chatPartner
+                  ? chatPartner.name
+                  : chatList.find((chat) => chat._id === selectedChatId)?.chatName || "Unknown Chat"}
               </h2>
             </div>
             <div className="flex-grow overflow-y-auto p-4">
@@ -200,26 +226,18 @@ const ChatPage = () => {
             <div className="border-t p-2 bg-gray-100 flex items-center gap-2">
               <input
                 type="text"
+                ref={messageInputRef}
                 placeholder="Type a message"
                 className="input input-bordered w-full bg-white"
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && e.currentTarget.value.trim()) {
-                    handleSendMessage(e.currentTarget.value);
-                    e.currentTarget.value = ""; // Clear the input field
+                  if (e.key === "Enter" && messageInputRef.current?.value.trim()) {
+                    handleSendMessage();
                   }
                 }}
               />
               <button
                 className="btn btn-info"
-                onClick={() => {
-                  const input = document.querySelector<HTMLInputElement>(
-                    "input[type='text']"
-                  );
-                  if (input && input.value.trim()) {
-                    handleSendMessage(input.value);
-                    input.value = ""; // Clear the input field
-                  }
-                }}
+                onClick={handleSendMessage}
               >
                 Send
               </button>

@@ -1,8 +1,9 @@
 import { Controller, Post, Body, Get, Query } from '@nestjs/common';
 import { ChatService } from './chat.service';
+import { ApiTags } from '@nestjs/swagger';
 
 
-
+@ApiTags('Chat')
 @Controller('chat')
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
@@ -41,5 +42,12 @@ export class ChatController {
   
     // Return an empty array if no conversations are found
     return conversations || [];
+  }
+
+  @Get('getAllMessagesByChatId')
+  async getAllMessagesByChatId(
+    @Query('chatId') chatId: string,
+  ) {
+    return await this.chatService.getAllMessagesByChatId(chatId);
   }
 }
