@@ -3,7 +3,7 @@ import { useUser } from "../../context/UserContext";
 import ChatCard from "./ChatCard";
 import ChatContent from "./ChatContent";
 import axiosInstance from "../../api/axiosInstance";
-import { ref, onValue, set, off, push, getDatabase } from "firebase/database";
+import { ref, onValue, off, push, getDatabase } from "firebase/database";
 import {db} from '../../firebaseConfig'
 
 interface Message {
