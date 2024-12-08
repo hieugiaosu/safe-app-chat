@@ -19,7 +19,7 @@ export class ChatService {
 
     // Update Conversation's last message
     await this.conversationModel.findByIdAndUpdate(conversationId, {
-      lastMessage: { text, senderId, timestamp: new Date() },
+      lastMessage: text,
     });
 
     // Push to Firebase Realtime Database
@@ -70,6 +70,13 @@ export class ChatService {
   async getConversation(user1Id: string, user2Id: string) {
     const conversation = await this.conversationModel.findOne({
       members: { $all: [user1Id, user2Id] },
+    });
+    return conversation || []; // Return an empty array if no data is found
+  }
+
+  async getConversationById(chatId: string) {
+    const conversation = await this.conversationModel.findOne({
+      _id: chatId,
     });
     return conversation || []; // Return an empty array if no data is found
   }
