@@ -10,12 +10,12 @@ export class Message {
   _id: Types.ObjectId;
 
   @AutoMap()
-  @Prop({ type: Types.ObjectId, ref: 'Conversation', required: true })
-  conversationId: Types.ObjectId; // Link to the conversation
+  @Prop({required: true })
+  conversationId: string; // Link to the conversation
 
   @AutoMap()
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  senderId: Types.ObjectId; // ID of the message sender
+  @Prop({ required: true })
+  senderId: string; // ID of the message sender
 
   @AutoMap()
   @Prop({ required: true })

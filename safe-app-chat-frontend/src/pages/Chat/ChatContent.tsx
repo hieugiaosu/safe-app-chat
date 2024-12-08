@@ -3,9 +3,8 @@ import dayjs from "dayjs";
 
 type Message = {
   senderId: string;
-  content: string;
-  type: string;
-  timestamp: number;
+  text: string;
+  createdAt: Date;
 };
 
 type ChatContentProps = {
@@ -38,9 +37,9 @@ const ChatContent: React.FC<ChatContentProps> = ({
             className={`chat ${isCurrentUser ? "chat-end" : "chat-start"}`}
           >
             <div className="chat-bubble">
-              <p>{message.content}</p>
+              <p>{message.text}</p>
               <span className="text-xs text-gray-400 block mt-1">
-                {dayjs.unix(message.timestamp).format("hh:mm A")}
+              {dayjs(message.createdAt).format("hh:mm A")}
               </span>
             </div>
             

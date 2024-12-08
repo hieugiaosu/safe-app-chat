@@ -5,7 +5,7 @@ interface ChatCardProps {
   chatId: string;
   chatName: string;
   lastMessage: string;
-  lastMessageTimestamp: number;
+  createdAt: Date;
   onClick: (chatId: string) => void; // Callback when the card is clicked
 }
 
@@ -13,14 +13,14 @@ const ChatCard: React.FC<ChatCardProps> = ({
   chatId,
   chatName,
   lastMessage,
-  lastMessageTimestamp,
+  createdAt,
   onClick,
 }) => {
-  const formatTimestamp = (timestamp: number) => {
-    const date = dayjs.unix(timestamp);
-    
+  const formatTimestamp = (createdDate: Date) => {
+    const date = dayjs(createdDate); // Treat timestamp as Date
+
     const isToday = date.isSame(dayjs(), "day");
-  
+
     return isToday ? date.format("HH:mm") : date.format("MM/DD/YYYY");
   };
 
@@ -35,7 +35,7 @@ const ChatCard: React.FC<ChatCardProps> = ({
         <div className="flex justify-between items-center">
           <h4 className="font-medium text-black">{chatName}</h4>
           <span className="text-sm text-gray-500 dark:text-gray-400">
-            {formatTimestamp(lastMessageTimestamp)}
+            {formatTimestamp(createdAt)}
           </span>
         </div>
 
