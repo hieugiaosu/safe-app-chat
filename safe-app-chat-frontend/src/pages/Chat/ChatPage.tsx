@@ -3,6 +3,8 @@ import { useUser } from "../../context/UserContext";
 import ChatCard from "./ChatCard";
 import ChatContent from "./ChatContent";
 import axiosInstance from "../../api/axiosInstance";
+import { ref, onValue, set, off, push, getDatabase } from "firebase/database";
+import {db} from '../../firebaseConfig'
 
 interface Message {
   senderId: string;
@@ -14,7 +16,7 @@ interface Chat {
   _id: string;
   chatName: string;
   lastMessage: string;
-  lastMessageTimestamp: number;
+  createdAt: Date;
 }
 
 const ChatPage = () => {
@@ -45,6 +47,28 @@ const ChatPage = () => {
     fetchChats();
   }, [user]);
 
+  useEffect(() => {
+    // Set up real-time listener for the selected chat
+    if (selectedChatId) {
+      const chatMessagesRef = ref(db, `chats/${selectedChatId}/messages`);
+      onValue(chatMessagesRef, (snapshot) => {
+        const messagesData = snapshot.val();
+        if (messagesData) {
+          const loadedMessages: Message[] = Object.keys(messagesData).map((key) => ({
+            senderId: messagesData[key].senderId,
+            text: messagesData[key].text,
+            createdAt: new Date(messagesData[key].createdAt),
+          }));
+          setMessages(loadedMessages); // Update state with real-time data
+        }
+      });
+
+      return () => {
+        // Clean up the listener when the component is unmounted or chatId changes
+        off(chatMessagesRef)
+      };
+    }
+  }, [selectedChatId]);
   const handleChatClick = (chatId: string) => {
     setSelectedChatId(chatId);
     setMessages([]); // Clear messages temporarily
@@ -54,6 +78,7 @@ const ChatPage = () => {
 
   const fetchMessages = async (chatId: string) => {
     console.log(chatId);
+    console.log(`/chat/getAllMessagesByChatId?chatId=${chatId}`);
     
     try {
       const response = await axiosInstance.get(`/chat/getAllMessagesByChatId?chatId=${chatId}`);
@@ -104,52 +129,51 @@ const ChatPage = () => {
     console.log(chatPartner);
     console.log(selectedChatId);
     console.log(user);
-    
+  
     if (!chatPartner && !selectedChatId) return;
-
+  
     try {
-      // Start a new Conversation
+      let newConversationId = selectedChatId; // To track the current or new chat ID
+  
+      // Start a new conversation
       if (!selectedChatId) {
-        await axiosInstance.post('/chat/sendFirstMessage',{
+        const response = await axiosInstance.post("/chat/sendFirstMessage", {
           recipientId: chatPartner?.id,
           senderId: user?._id,
-          text: messageContent
-        })
+          text: messageContent,
+        });
+        newConversationId = response.data.conversationId; // Set the new chat ID
+        setSelectedChatId(newConversationId);
+      } else {
+        // Currently in an existing conversation
+        await axiosInstance.post("/chat/sendMessage", {
+          senderId: user?._id,
+          conversationId: selectedChatId,
+          text: messageContent,
+        });
+      }
+  
+      // Push the message to Firebase Realtime Database
+      if (newConversationId) {
+        const db = getDatabase(); // Initialize the database
+        const messagesRef = ref(db, `chats/${newConversationId}/messages`); // Reference to the chat's messages path
+        
+        const messageData = {
+          senderId: user?._id,
+          text: messageContent,
+          timestamp: Date.now(), // Optional: Add a timestamp
+        };
+  
+        await push(messagesRef, messageData); // Add the message to Firebase
+      }
+  
+      // Clear the input field after sending the message
+      if (messageInputRef.current) {
+        messageInputRef.current.value = "";
       }
     } catch (error) {
       console.error("Error sending message:", error);
     }
-    
-    
-    
-    
-
-    // try {
-    //   let chatIdToUse = selectedChatId;
-
-    //   if (chatPartner && !selectedChatId) {
-    //     // Create a new conversation if it doesn't exist
-    //     const newConversationResponse = await axiosInstance.post(`/chat/createConversation`, {
-    //       user1: user?._id,
-    //       user2: chatPartner.id,
-    //     });
-
-    //     chatIdToUse = newConversationResponse.data.chatId;
-    //     setSelectedChatId(chatIdToUse);
-    //   }
-
-    //   // Send the message
-    //   await axiosInstance.post(`/chat/sendMessage`, {
-    //     chatId: chatIdToUse,
-    //     senderId: user?._id,
-    //     content: messageContent,
-    //   });
-
-    //   // Refresh messages after sending
-    //   fetchMessages(chatIdToUse!);
-    // } catch (err) {
-    //   console.error("Error sending message:", err);
-    // }
   };
 
   return (
@@ -191,7 +215,7 @@ const ChatPage = () => {
             chatId={chat._id}
             chatName={chat.chatName}
             lastMessage={chat.lastMessage}
-            lastMessageTimestamp={chat.lastMessageTimestamp}
+            createdAt={chat.createdAt}
             onClick={handleChatClick}
           />
         ))}

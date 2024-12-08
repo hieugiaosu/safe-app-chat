@@ -10,8 +10,8 @@ export class Conversation {
   _id: Types.ObjectId;
 
   @AutoMap()
-  @Prop({ type: [Types.ObjectId], ref: 'User', required: true })
-  members: Types.ObjectId[]; // List of user IDs in the conversation
+  @Prop({ required: true })
+  members: string[]; // List of user IDs in the conversation
 
   @AutoMap()
   @Prop()

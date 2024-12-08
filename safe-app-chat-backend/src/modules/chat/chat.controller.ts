@@ -34,6 +34,13 @@ export class ChatController {
     return this.chatService.getConversation(user1Id, user2Id);
   }
 
+  @Get('getConversationById')
+  async getConversationById(
+    @Query('chatId') chatId: string,
+  ) {
+    return this.chatService.getConversationById(chatId);
+  }
+
   @Get('getAllConversationByUser')
   async getAllConversationByUser(
     @Query('userId') userId: string,
