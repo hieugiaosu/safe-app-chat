@@ -10,12 +10,16 @@ export class Conversation {
   _id: Types.ObjectId;
 
   @AutoMap()
-  @Prop({ required: true })
-  members: string[]; // List of user IDs in the conversation
+  @Prop({ required: true, type: Types.ObjectId, ref: 'user' })
+  members: Types.ObjectId[]; // List of user IDs in the conversation
 
   @AutoMap()
-  @Prop()
-  lastMessage: string; // Optionally store the last message content
+  @Prop({ required: false, default: null })
+  lastMessage?: string; // Optionally store the last message content
+
+  @AutoMap()
+  @Prop({ type: Types.ObjectId, ref: 'user' })
+  lastSenderId: Types.ObjectId; // Optionally store the last message sender ID
 
   @AutoMap()
   createdAt: Date;

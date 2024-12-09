@@ -1,6 +1,6 @@
 import { AutoMap } from "@automapper/classes";
 import { ApiProperty } from "@nestjs/swagger";
-import { UserDto } from "src/modules/user/dto/user.dto";
+import { IsOptional, IsString } from "class-validator";
 
 export class ConversationDto {
     @ApiProperty()
@@ -13,7 +13,15 @@ export class ConversationDto {
 
     @ApiProperty()
     @AutoMap()
-    lastMessage: string;
+    @IsOptional()
+    @IsString()
+    lastMessage?: string;
+
+    @ApiProperty()
+    @AutoMap()
+    @IsOptional()
+    @IsString()
+    lastSenderId?: string;
 
     @ApiProperty()
     @AutoMap()

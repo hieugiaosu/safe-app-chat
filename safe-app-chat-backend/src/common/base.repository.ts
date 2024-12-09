@@ -1,14 +1,14 @@
 import { AnyBulkWriteOperation, ClientSession, FilterQuery, Model, QueryOptions, Types, UpdateQuery } from 'mongoose';
-import { BaseRepositoryInterface } from "./base.interface"
+import { IBaseRepository } from "./base.interface";
 
-export abstract class BaseAbstractRepository<T> implements BaseRepositoryInterface<T> {
+export abstract class BaseRepository<T> implements IBaseRepository<T> {
     private model: Model<T>
     protected constructor(model: Model<T>) {
         this.model = model
     }
 
     public async create(resource: Partial<T>, session?: ClientSession): Promise<T> {
-        const createdResource = new this.model(resource, );
+        const createdResource = new this.model(resource);
         const result = await createdResource.save({ session });
         return result.toObject();
     }
@@ -52,5 +52,9 @@ export abstract class BaseAbstractRepository<T> implements BaseRepositoryInterfa
 
     public async bulkWrite(operations: AnyBulkWriteOperation[]): Promise<any> {
         return this.model.bulkWrite(operations);
+    }
+
+    public async update(filterConditions: FilterQuery<T>, updateQuery: UpdateQuery<T>): Promise<unknown> {
+        return await this.model.updateMany(filterConditions, updateQuery).exec();
     }
 }

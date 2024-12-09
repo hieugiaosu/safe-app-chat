@@ -1,6 +1,6 @@
-import { BaseRepositoryInterface } from "src/common/base.interface";
+import { IBaseRepository } from "src/common/base.interface";
 import { User } from "./user.schema";
 
-export interface UserRepositoryInterface extends BaseRepositoryInterface<User> {
+export interface IUserRepository extends IBaseRepository<User> {
     findByEmail(email: string): Promise<User | null>
 }
