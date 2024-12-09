@@ -45,7 +45,7 @@ const RegisterPage: React.FC = () => {
           <div className="mb-3">
             <input
               type="string"
-              className="form-control"
+              className="form-control mb-3"
               placeholder="firstName"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
@@ -53,7 +53,7 @@ const RegisterPage: React.FC = () => {
             />
             <input
               type="string"
-              className="form-control"
+              className="form-control mb-3"
               placeholder="lastName"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
