@@ -35,7 +35,7 @@ export class ChatService {
       throw new NotFoundException('Conversation not found');
     }
     if (!conversation.members.includes(new Types.ObjectId(userId))) {
-      throw new NotFoundException('Conversation not found');
+      throw new NotFoundException('Conversation not found ');
     }
 
     let message: Message;
