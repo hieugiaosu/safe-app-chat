@@ -3,7 +3,7 @@ import { useUser } from "../../context/UserContext";
 import ChatCard from "./ChatCard";
 import ChatContent from "./ChatContent";
 import axiosInstance from "../../api/axiosInstance";
-import { ref, onValue, off, push, getDatabase } from "firebase/database";
+import { ref, onValue, off } from "firebase/database";
 import {db} from '../../firebaseConfig'
 
 interface Message {
@@ -19,6 +19,15 @@ interface Chat {
   createdAt: Date;
 }
 
+interface User {
+  _id: string;
+  email: string
+  firstName: string
+  lastName: string
+  createdAt: Date
+  updatedAt: Date
+}
+
 const ChatPage = () => {
   const { user } = useUser(); // Access authenticated user from context
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
@@ -27,14 +36,39 @@ const ChatPage = () => {
   const [searchError, setSearchError] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [chatPartner, setChatPartner] = useState<{ id: string; name: string } | null>(null);
+  const [currentUser, setCurrentUser] = useState<User>();
+  
   const messageInputRef = useRef<HTMLInputElement>(null);
-
+  
+  
+  const accessToken = localStorage.getItem("accessToken");
+  if (!accessToken) {
+    console.error("Access token not found in localStorage.");
+    window.location.href = "/login";
+    return;
+  }
   useEffect(() => {
+    
     // Fetch user's chat list when component loads
     const fetchChats = async () => {
       try {
-        if (user?._id) {
-          const response = await axiosInstance.get(`/chat/getAllConversationByUser?userId=${user._id}`);
+        const meResponse = await axiosInstance.get("/users/me", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        console.log(meResponse.data);
+        setCurrentUser(meResponse.data)
+        
+        if (meResponse.data._id) {
+          const response = await axiosInstance.get(`/chat/conversations/user`, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+            params: {
+              userId: meResponse.data._id,
+            },
+          });
           console.log(response.data);
           
           setChatList(response.data); // Assuming response.data contains the list of chats.
@@ -50,14 +84,14 @@ const ChatPage = () => {
   useEffect(() => {
     // Set up real-time listener for the selected chat
     if (selectedChatId) {
-      const chatMessagesRef = ref(db, `chats/${selectedChatId}/messages`);
+      const chatMessagesRef = ref(db, `conversations/${selectedChatId}/messages`);
       onValue(chatMessagesRef, (snapshot) => {
         const messagesData = snapshot.val();
         if (messagesData) {
           const loadedMessages: Message[] = Object.keys(messagesData).map((key) => ({
             senderId: messagesData[key].senderId,
             text: messagesData[key].text,
-            createdAt: new Date(messagesData[key].createdAt),
+            createdAt: new Date(messagesData[key].timestamp),
           }));
           setMessages(loadedMessages); // Update state with real-time data
         }
@@ -77,11 +111,15 @@ const ChatPage = () => {
   };
 
   const fetchMessages = async (chatId: string) => {
-    console.log(chatId);
-    console.log(`/chat/getAllMessagesByChatId?chatId=${chatId}`);
-    
     try {
-      const response = await axiosInstance.get(`/chat/getAllMessagesByChatId?chatId=${chatId}`);
+      const response = await axiosInstance.get(`/chat/messages`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        params: {
+          conversationId: chatId,
+        },
+      });
       setMessages(response.data); // Assuming response.data contains messages for the chat.
     } catch (err) {
       console.error("Error fetching messages:", err);
@@ -104,9 +142,17 @@ const ChatPage = () => {
       setMessages([]); // Clear messages for the new chat
 
       // Check for an existing conversation
-      const conversationResponse = await axiosInstance.get(
-        `/chat/getConversation?user1=${user?._id}&user2=${foundUser.id}`
-      );
+      // const conversationResponse = await axiosInstance.get(
+      //   `/chat/getConversation/with-user`
+      // );
+      const conversationResponse = await axiosInstance.get(`/chat/conversations/with-user`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        params: {
+          withUserId: chatPartner.id,
+        },
+      });
 
       const conversation = conversationResponse.data;
 
@@ -115,8 +161,21 @@ const ChatPage = () => {
         setSelectedChatId(conversation.chatId);
         fetchMessages(conversation.chatId);
       } else {
-        // If no conversation exists, clear selectedChatId to start a new conversation
-        setSelectedChatId(null);
+        // If no conversation exists,create a new conversation and set selectedChatId
+        const response = await axiosInstance.post(
+          "/chat/conversations",
+          { recipientId: chatPartner.id}, // The body of the request
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`, // Include Bearer token in headers
+            },
+          }
+        );
+        console.log(response);
+        
+        if (response) {
+          setSelectedChatId(response.data.id);
+        } 
       }
     } catch (err) {
       console.error("Error during search:", err);
@@ -127,46 +186,20 @@ const ChatPage = () => {
   const handleSendMessage = async () => {
     const messageContent = messageInputRef.current?.value.trim();
     console.log(chatPartner);
-    console.log(selectedChatId);
-    console.log(user);
-  
-    if (!chatPartner && !selectedChatId) return;
+    console.log(typeof(selectedChatId));
   
     try {
-      let newConversationId = selectedChatId; // To track the current or new chat ID
-  
-      // Start a new conversation
-      if (!selectedChatId) {
-        const response = await axiosInstance.post("/chat/sendFirstMessage", {
-          recipientId: chatPartner?.id,
-          senderId: user?._id,
-          text: messageContent,
-        });
-        newConversationId = response.data.conversationId; // Set the new chat ID
-        setSelectedChatId(newConversationId);
-      } else {
         // Currently in an existing conversation
-        await axiosInstance.post("/chat/sendMessage", {
-          senderId: user?._id,
-          conversationId: selectedChatId,
-          text: messageContent,
-        });
-      }
-  
-      // Push the message to Firebase Realtime Database
-      if (newConversationId) {
-        const db = getDatabase(); // Initialize the database
-        const messagesRef = ref(db, `chats/${newConversationId}/messages`); // Reference to the chat's messages path
-        
-        const messageData = {
-          senderId: user?._id,
-          text: messageContent,
-          timestamp: Date.now(), // Optional: Add a timestamp
-        };
-  
-        await push(messagesRef, messageData); // Add the message to Firebase
-      }
-  
+        await axiosInstance.post("/chat/messages", 
+          { conversationId: selectedChatId,
+            messageContent: messageContent
+           }, // The body of the request
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`, // Include Bearer token in headers
+            },
+          }
+        );
       // Clear the input field after sending the message
       if (messageInputRef.current) {
         messageInputRef.current.value = "";
@@ -181,14 +214,14 @@ const ChatPage = () => {
       {/* Sidebar */}
       <div className="sidebar w-1/3 border-r overflow-y-auto">
         <div className="p-4 border-b bg-gray-100">
-          {user ? (
+          {currentUser ? (
             <div className="flex items-center gap-3">
               <div className="avatar w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center">
-                {user.name?.charAt(0).toUpperCase() || "U"}
+                {currentUser.lastName?.charAt(0).toUpperCase() || "U"}
               </div>
               <div>
-                <p className="font-semibold">{user.name}</p>
-                <p className="text-sm text-gray-500">{user.email}</p>
+                <p className="font-semibold">{currentUser.lastName} {currentUser.firstName}</p>
+                <p className="text-sm text-gray-500">{currentUser.email}</p>
               </div>
             </div>
           ) : (
@@ -223,7 +256,7 @@ const ChatPage = () => {
 
       {/* Chat Area */}
       <div className="w-2/3 flex flex-col h-screen">
-      <p>{JSON.stringify(chatPartner)}</p>
+      {/* <p>{JSON.stringify(chatPartner)}</p> */}
 
         {chatPartner || selectedChatId ? (
           <>
