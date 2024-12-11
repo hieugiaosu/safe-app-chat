@@ -58,6 +58,8 @@ describe('UserService', () => {
                 email: user.email,
                 createdAt: user.createdAt,
                 updatedAt: user.updatedAt,
+                role: '0',
+                isActive: true,
             };
             jest.spyOn(userRepository, 'findById').mockResolvedValue(user);
             const result = await userService.findUserById(new Types.ObjectId(userId));

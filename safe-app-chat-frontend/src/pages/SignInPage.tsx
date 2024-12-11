@@ -28,7 +28,12 @@ const SignInPage: React.FC = () => {
       localStorage.setItem('user', user);
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('tokenExpiry', (Date.now() + 3600000).toString()); // 1 hour from now
-      navigate('/chat');
+       // Điều hướng dựa trên vai trò
+      if (user.role === "1") {
+        navigate('/admin'); // Admin
+      } else {
+        navigate('/chat'); // Người dùng thường
+      }
     } catch (err) {
       setError('Invalid email or password');
     }

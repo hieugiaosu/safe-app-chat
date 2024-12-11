@@ -12,6 +12,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { FirebaseModule } from './modules/firebase/firebase.module';
 import { UserModule } from './modules/user/user.module';
 import { ChatModule } from './modules/chat/chat.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -34,7 +35,8 @@ import { ChatModule } from './modules/chat/chat.module';
     AuthModule,
     UserModule,
     FirebaseModule,
-    ChatModule
+    ChatModule,
+    AdminModule
   ],
   controllers: [AppController],
   providers: [AppService],

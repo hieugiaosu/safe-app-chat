@@ -31,11 +31,9 @@ export class User {
     updatedAt: Date;
     
     @AutoMap()
-    @Prop({ default: '0' })  // Role mặc định là '0'
     role: string;
 
     @AutoMap()
-    @Prop({ default: true })  // Trạng thái isActive mặc định là true
     isActive: boolean;
 }
 
