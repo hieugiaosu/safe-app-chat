@@ -9,9 +9,13 @@ import { CreateMessageBodyDto } from './dto/body.dto';
 import { ConversationDto } from './dto/conversation.dto';
 import { MessageDto } from './dto/message.dto';
 import { Message } from './schema/message.schema';
-
+import { HttpService } from '@nestjs/axios';
+import { lastValueFrom } from 'rxjs';
 @Injectable()
 export class ChatService {
+  private readonly apiKey = process.env.AI_SERVICE_API_KEY;
+  private readonly apiEndpoint = process.env.AI_SERVICE_ENDPOINT;
+
   constructor(
     @Inject('IConversationRepository') private readonly conversationRepository: IConversationRepository,
     @Inject('IMessageRepository') private readonly messageRepository: IMessageRepository,
@@ -20,6 +24,7 @@ export class ChatService {
     @InjectConnection() private connection: Connection,
     @InjectMapper()
     private mapper: Mapper,
+    private readonly httpService: HttpService
   ) {}
 
   async sendMessage(body: CreateMessageBodyDto, userId: Types.ObjectId): Promise<MessageDto> {
@@ -34,19 +39,39 @@ export class ChatService {
     if (!conversation) {
       throw new NotFoundException('Conversation not found');
     }
-    if (!conversation.members.includes(new Types.ObjectId(userId))) {
-      throw new NotFoundException('Conversation not found ');
+    if (!conversation.members.map(member => member.toString()).includes(userId.toString())) {
+      throw new NotFoundException('Conversation not found');
     }
 
+    // check toxicity
+    const toxicRes = await lastValueFrom(
+        this.httpService.post(
+          `${this.apiEndpoint}/message-classifier/toxic-classify`,
+          { message: messageContent},
+          {
+            headers: {
+              Authorization: `Bearer ${this.apiKey}`,
+            },
+          },
+        ),
+      );
+    
+    
+    
     let message: Message;
     const session = await this.connection.startSession();
     session.startTransaction();
     try {
+      console.log(toxicRes.data.toxic);
       message = await this.messageRepository.create({
+        isToxic: toxicRes.data.toxic,
         conversationId: new Types.ObjectId(conversationId),
         senderId: new Types.ObjectId(userId),
         text: messageContent,
+        
       }, session);
+      console.log(message);
+      
       await this.conversationRepository.findAndUpdate(
         { _id: new Types.ObjectId(conversationId) },
         { lastMessage: messageContent, lastSenderId: new Types.ObjectId(userId) },
@@ -69,6 +94,7 @@ export class ChatService {
       text: message.text,
       createdAt: message.createdAt,
       updatedAt: message.updatedAt,
+      isToxic: message.isToxic
     }
 
     await this.firebaseService.set(
@@ -193,6 +219,8 @@ export class ChatService {
       { conversationId: new Types.ObjectId(conversationId) },
       { sort: { createdAt: 1 } }
     )
+    console.log(messages);
+    
     return messages.map((message) => {
       return {
         _id: message._id.toString(),
@@ -201,6 +229,7 @@ export class ChatService {
         text: message.text,
         createdAt: message.createdAt,
         updatedAt: message.updatedAt,
+        isToxic: message.isToxic
       }
     });
   }

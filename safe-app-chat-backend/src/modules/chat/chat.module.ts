@@ -6,9 +6,11 @@ import { ConversationRepository, MessageRepository } from './chat.repository';
 import { ChatService } from './chat.service';
 import { Conversation, ConversationSchema } from './schema/conversation.schema';
 import { Message, MessageSchema } from './schema/message.schema';
-
+import { HttpModule } from '@nestjs/axios';
+ 
 @Module({
   imports: [
+    HttpModule,
     MongooseModule.forFeature([
       { name: Message.name, schema: MessageSchema },
       { name: Conversation.name, schema: ConversationSchema },

@@ -26,6 +26,9 @@ export class Message {
 
   @AutoMap()
   updatedAt: Date;
+
+  @AutoMap()
+  isToxic: Boolean
 }
 
 export const MessageSchema = SchemaFactory.createForClass(Message);

@@ -13,6 +13,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { FirebaseModule } from './modules/firebase/firebase.module';
 import { UserModule } from './modules/user/user.module';
+import { AiModule } from './modules/ai/ai.module';
 
 @Module({
   imports: [
@@ -35,7 +36,8 @@ import { UserModule } from './modules/user/user.module';
     AuthModule,
     UserModule,
     FirebaseModule,
-    ChatModule
+    ChatModule,
+    AiModule
   ],
   controllers: [AppController],
   providers: [AppService],
