@@ -40,15 +40,22 @@ const ChatPage = () => {
   
   const messageInputRef = useRef<HTMLInputElement>(null);
   
-  
+  const pollApi = async () => {
+    try {
+      const response = await axiosInstance.get('/ai/health-check');
+      console.log('API Response:', response.data);
+    } catch (error) {
+      console.error('Error calling health check');
+    }
+  };
   const accessToken = localStorage.getItem("accessToken");
   if (!accessToken) {
     console.error("Access token not found in localStorage.");
-    window.location.href = "/login";
+    window.location.href = "/signin";
     return;
   }
   useEffect(() => {
-    
+    setInterval(pollApi, 60 * 1000);
     // Fetch user's chat list when component loads
     const fetchChats = async () => {
       try {

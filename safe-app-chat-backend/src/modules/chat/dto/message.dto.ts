@@ -25,4 +25,8 @@ export class MessageDto {
   @ApiProperty({ description: 'The timestamp when the message was last updated' })
   @AutoMap()
   updatedAt: Date;
+
+  @ApiProperty({ description: 'Toxic?' })
+  @AutoMap()
+  isToxic: Boolean;
 }
