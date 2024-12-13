@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import dayjs from "dayjs";
-
 
 type Message = {
   senderId: string;
   text: string;
   createdAt: Date;
+  isToxic: boolean;
 };
 
 type ChatContentProps = {
@@ -19,6 +19,18 @@ const ChatContent: React.FC<ChatContentProps> = ({
   messages,
   currentUserId,
 }) => {
+  const [visibleMessages, setVisibleMessages] = useState<{
+    [key: string]: boolean;
+  }>({});
+  console.log(currentUserId);
+  
+  const toggleMessageVisibility = (messageId: string) => {
+    setVisibleMessages((prev) => ({
+      ...prev,
+      [messageId]: !prev[messageId],
+    }));
+  };
+
   if (!messages) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -30,20 +42,29 @@ const ChatContent: React.FC<ChatContentProps> = ({
   return (
     <div className="p-4 h-full overflow-y-auto bg-gray-50">
       {Object.entries(messages).map(([messageId, message]) => {
+        
         const isCurrentUser = message.senderId === currentUserId;
+        const isVisible = visibleMessages[messageId];
 
         return (
           <div
             key={messageId}
             className={`chat ${isCurrentUser ? "chat-end" : "chat-start"}`}
           >
-            <div className="chat-bubble">
-              <p>{message.text}</p>
+            <div
+              className="chat-bubble"
+              onClick={() => toggleMessageVisibility(messageId)}
+              style={{ cursor: message.isToxic ? "pointer" : "default" }}
+            >
+              {message.isToxic && !isVisible ? (
+                <p className="italic text-gray-500">Toxic message</p>
+              ) : (
+                <p>{message.text}</p>
+              )}
               <span className="text-xs text-gray-400 block mt-1">
-              {dayjs(message.createdAt).format("hh:mm A")}
+                {dayjs(message.createdAt).format("hh:mm A")}
               </span>
             </div>
-            
           </div>
         );
       })}

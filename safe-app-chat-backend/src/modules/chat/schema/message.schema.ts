@@ -28,6 +28,7 @@ export class Message {
   updatedAt: Date;
 
   @AutoMap()
+  @Prop()
   isToxic: Boolean
 }
 
