@@ -10,6 +10,7 @@ interface Message {
   senderId: string;
   text: string;
   createdAt: Date;
+  isToxic: boolean
 }
 
 interface Chat {
@@ -99,6 +100,7 @@ const ChatPage = () => {
             senderId: messagesData[key].senderId,
             text: messagesData[key].text,
             createdAt: new Date(messagesData[key].timestamp),
+            isToxic: messagesData[key].isToxic
           }));
           setMessages(loadedMessages); // Update state with real-time data
         }
@@ -279,7 +281,7 @@ const ChatPage = () => {
                 <ChatContent
                   chatId={selectedChatId!}
                   messages={messages}
-                  currentUserId={user?._id!}
+                  currentUserId={currentUser?._id || ""}
                 />
               ) : (
                 <p className="text-gray-500 text-center">Start a conversation</p>
