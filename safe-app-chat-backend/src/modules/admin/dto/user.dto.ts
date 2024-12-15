@@ -28,11 +28,11 @@ export class UserDto {
 
     @ApiProperty()
     @AutoMap()
-    role?: string;
+    role: string;
 
     @ApiProperty()
     @AutoMap()
-    isActive?: boolean;
+    isActive: boolean;
 
     // Constructor để khởi tạo giá trị mặc định cho role và isActive
     constructor(partial: Partial<UserDto> = {}) {

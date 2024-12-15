@@ -5,6 +5,8 @@ interface User {
   email: string;
   name: string;
   accessToken: string;
+  role: string;
+  isActive: boolean;
 }
 
 interface UserContextType {

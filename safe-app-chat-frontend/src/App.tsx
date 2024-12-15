@@ -5,6 +5,7 @@ import LandingPage from "./pages/LandingPage";
 import SignInPage from "./pages/SignInPage";
 import RegisterPage from "./pages/RegisterPage";
 import TestRealTimeDB from "./pages/TestRealTimeDB";
+import UserManagementPage from "./pages/UserManagementPage";
 
 const App: React.FC = () => {
   return (
@@ -21,6 +22,10 @@ const App: React.FC = () => {
       
       {/* Test Realtime DB route */}
       <Route path="/testRealTimeDB" element={<TestRealTimeDB />} />
+
+    {/* Admin */}
+      <Route path="/admin" element={<UserManagementPage />} />
+
     </Routes>
     
   );

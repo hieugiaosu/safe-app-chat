@@ -12,9 +12,21 @@ const SignInPage: React.FC = () => {
 
   useEffect(() => {
     if (user && user.accessToken) {
-      console.log(user);
+      console.log(user.role);
+      // Check for user isActive status
+      if (user.isActive === false) {
+        setError(
+          'Tài khoản của bạn đã bị khóa. Hãy liên hệ quản trị viên qua email admin@gmail.com.'
+        );
+        return; // Prevent navigation
+      }
       
-      navigate('/chat');
+      // Điều hướng dựa trên vai trò
+      if (user.role === "1") {
+        navigate('/admin'); // Admin
+      } else {
+        navigate('/chat'); // Người dùng thường
+      }
     }
   }, [user, navigate]);
 
@@ -28,7 +40,21 @@ const SignInPage: React.FC = () => {
       localStorage.setItem('user', user);
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('tokenExpiry', (Date.now() + 3600000).toString()); // 1 hour from now
-      navigate('/chat');
+      
+       // Check for user isActive status
+       if (user.isActive === false) {
+        setError(
+          'Tài khoản của bạn đã bị khóa. Hãy liên hệ quản trị viên qua email admin@gmail.com.'
+        );
+        return; // Prevent navigation
+      }
+      
+      // Điều hướng dựa trên vai trò
+      if (user.role === "1") {
+        navigate('/admin'); // Admin
+      } else {
+        navigate('/chat'); // Người dùng thường
+      }
     } catch (err) {
       setError('Invalid email or password');
     }

@@ -9,7 +9,9 @@ export const generateUser = ({ id = "66f19519cdebdcac0f19c943", email = "john.do
         email,
         password,
         updatedAt: new Date(),
-        createdAt: new Date()
+        createdAt: new Date(),
+        role: '0',
+        isActive: true
     };
     return user;
 };
