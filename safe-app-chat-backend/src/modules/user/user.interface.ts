@@ -1,4 +1,4 @@
-import { IBaseRepository } from "src/common/base.interface";
+import { IBaseRepository } from "../../common/base.interface";
 import { User } from "./user.schema";
 
 export interface IUserRepository extends IBaseRepository<User> {

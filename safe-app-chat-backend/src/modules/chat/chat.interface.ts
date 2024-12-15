@@ -1,4 +1,4 @@
-import { IBaseRepository } from "src/common/base.interface";
+import { IBaseRepository } from "../../common/base.interface";
 import { Conversation } from "./schema/conversation.schema";
 import { Message } from "./schema/message.schema";
 
