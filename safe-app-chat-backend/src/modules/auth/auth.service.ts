@@ -49,6 +49,8 @@ export class AuthService {
         const userDoc = await this.userRepository.create({
             ...payload,
             password: hash,
+            role: '0', // Nếu không có role, đặt giá trị mặc định
+            isActive: true, // Nếu không có isActive, đặt mặc định
         });
         const mappedUser = this.mapper.map(userDoc, User, UserDto);
         return mappedUser;
