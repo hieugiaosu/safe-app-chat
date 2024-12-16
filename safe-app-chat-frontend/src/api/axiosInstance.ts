@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:3000',
+  baseURL: 'https://safe-app-chat.vercel.app',
 });
 
 // Add a request interceptor to include the token in the headers
