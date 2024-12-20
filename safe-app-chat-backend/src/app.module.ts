@@ -15,6 +15,7 @@ import { FirebaseModule } from './modules/firebase/firebase.module';
 import { UserModule } from './modules/user/user.module';
 import { AiModule } from './modules/ai/ai.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { StatisticModule } from './modules/statistic/statistic.module';
 
 @Module({
   imports: [
@@ -39,7 +40,8 @@ import { AdminModule } from './modules/admin/admin.module';
     FirebaseModule,
     ChatModule,
     AiModule,
-    AdminModule
+    AdminModule,
+    StatisticModule,
   ],
   controllers: [AppController],
   providers: [AppService],
