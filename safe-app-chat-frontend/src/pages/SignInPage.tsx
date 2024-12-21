@@ -89,7 +89,7 @@ const SignInPage: React.FC = () => {
           <button type="submit" className="btn btn-primary w-100">Sign In</button>
         </form>
         <p className="mt-3">
-          Don't have an account? <Link to="/signup">Sign Up</Link>
+          Don't have an account? <Link to="/register">Sign Up</Link>
         </p>
       </div>
     </div>
