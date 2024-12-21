@@ -51,6 +51,13 @@ const UserManagementPage: React.FC = () => {
 
   };
 
+  const filteredUsers = Array.isArray(users)
+  ? users.filter((user) =>
+      user.email?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  : [];
+
+
   const fetchStatistics = async (year: number) => {
     setLoading(true);
     setError('');
@@ -125,7 +132,7 @@ const UserManagementPage: React.FC = () => {
 
       {!loading && !error && (
         <>
-          {users.length > 0 ? (
+         {filteredUsers.length > 0 ? (
             <div className="bg-white shadow rounded-lg overflow-hidden">
               <table className="w-full table-auto">
                 <thead className="bg-blue-300 text-blue-900">
@@ -137,7 +144,7 @@ const UserManagementPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((user, index) => (
+                  {filteredUsers.map((user, index) => (
                     <tr
                       key={user._id}
                       className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}
