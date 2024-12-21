@@ -84,6 +84,29 @@ const UserManagementPage: React.FC = () => {
     }
   };
 
+    const updateRole = async (userId: string, newRole: string) => {
+    console.log('Cập nhật vai trò cho người dùng:', userId, newRole);
+    try {
+      const response = await axiosInstance.put(`/admin/${userId}/updateRole`, { role: newRole });
+      console.log('Dữ liệu từ API:', response);
+      const updatedUser = response.data;
+      setMessageStatus('Cập nhật vai trò thành công!');
+      
+    setUsers((prevUsers) =>
+      prevUsers.map((user) =>
+        user._id === userId ? { ...user, role: updatedUser.role } : user
+      )
+    );
+
+    setMessageStatus('Cập nhật vai trò thành công!');
+    setTimeout(() => setMessageStatus(''), 3000); // Xóa thông báo sau 3 giây
+  } catch (error) {
+    console.error(error);
+    setMessageStatus('Cập nhật vai trò thất bại!');
+    setTimeout(() => setMessageStatus(''), 3000); // Xóa thông báo sau 3 giây
+  }
+};
+
   const renderUsersPage = () => (
     <>
       <div className="flex justify-between items-center mb-6">
@@ -131,14 +154,24 @@ const UserManagementPage: React.FC = () => {
                         </span>
                       </td>
                       <td className="py-3 px-6 space-x-2">
-                        <button
-                          onClick={() => updateStatus(user._id, !user.isActive)}
-                          className={`px-3 py-1 text-white rounded ${
-                            user.isActive ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'
-                          }`}
-                        >
-                          {user.isActive ? 'Chặn' : 'Bỏ chặn'}
-                        </button>
+                      <button
+                              onClick={() =>
+                                updateRole(user._id, user.role === "1" ? "0" : "1")
+                              }
+                              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                            >
+                              Đổi vai trò
+                            </button>
+                            <button
+                              onClick={() => updateStatus(user._id, !user.isActive)}
+                              className={`px-3 py-1 text-white rounded ${
+                                user.isActive
+                                  ? "bg-red-500 hover:bg-red-600"
+                                  : "bg-green-500 hover:bg-green-600"
+                              }`}
+                            >
+                              {user.isActive ? "Chặn" : "Bỏ chặn"}
+                            </button>
                       </td>
                     </tr>
                   ))}
