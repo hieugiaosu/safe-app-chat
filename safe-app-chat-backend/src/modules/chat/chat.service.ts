@@ -11,6 +11,7 @@ import { MessageDto } from './dto/message.dto';
 import { Message } from './schema/message.schema';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
+import { UserService } from '../user/user.service';
 @Injectable()
 export class ChatService {
   private readonly apiKey = process.env.AI_SERVICE_API_KEY;
@@ -20,7 +21,7 @@ export class ChatService {
     @Inject('IConversationRepository') private readonly conversationRepository: IConversationRepository,
     @Inject('IMessageRepository') private readonly messageRepository: IMessageRepository,
     private readonly firebaseService: FirebaseService,
-
+    private readonly userService: UserService,
     @InjectConnection() private connection: Connection,
     @InjectMapper()
     private mapper: Mapper,
@@ -55,9 +56,6 @@ export class ChatService {
           },
         ),
       );
-    
-    
-    
     let message: Message;
     const session = await this.connection.startSession();
     session.startTransaction();
@@ -96,13 +94,15 @@ export class ChatService {
       updatedAt: message.updatedAt,
       isToxic: message.isToxic
     }
-
+    console.log('co ko', message.createdAt);
+    
     await this.firebaseService.set(
       `conversations/${conversationId}/messages/${message._id}`,
       {
         senderId: message.senderId.toString(),
         text: message.text,
-        timestamp: message.createdAt,
+        timestamp: Date.now(),
+        isToxic: message.isToxic
       }
     )
     return messageDto;
@@ -196,18 +196,32 @@ export class ChatService {
   
   async getAllConversationByUser(userId: Types.ObjectId): Promise<ConversationDto[]> {
     const conversations = await this.conversationRepository.getByConditions(
-      { members: new Types.ObjectId(userId) }
+      { members: new Types.ObjectId(userId) },
     );
-    return conversations.map((conversation) => {
-      return {
+
+    const conversationDtos = [];
+    for (const conversation of conversations) {
+      const membersWithDetails = await Promise.all(
+        conversation.members.map(async (memberId) => {
+          const user = await this.userService.findUserById(memberId);
+          return {
+            id: memberId.toString(),
+            name: `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'Unknown',
+          };
+        }),
+      );
+
+      conversationDtos.push({
         _id: conversation._id.toString(),
-        members: conversation.members.map((member) => member.toString()),
+        members: membersWithDetails,
         lastMessage: conversation.lastMessage,
         lastSenderId: conversation.lastSenderId?.toString() || null,
         createdAt: conversation.createdAt,
         updatedAt: conversation.updatedAt,
-      }
-    });
+      });
+    }
+
+    return conversationDtos;
   }
 
   async getAllMessagesByConversationId(conversationId: string): Promise<MessageDto[]> {

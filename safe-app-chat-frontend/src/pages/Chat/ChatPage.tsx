@@ -12,10 +12,15 @@ interface Message {
   createdAt: Date;
   isToxic: boolean
 }
+interface Member {
+  id: string;
+  name: string;
+}
 
 interface Chat {
   _id: string;
   chatName: string;
+  members: Member[];
   lastMessage: string;
   createdAt: Date;
 }
@@ -77,7 +82,7 @@ const ChatPage = () => {
               userId: meResponse.data._id,
             },
           });
-          console.log(response.data);
+          console.log("?",response.data);
           
           setChatList(response.data); // Assuming response.data contains the list of chats.
         }
@@ -96,12 +101,17 @@ const ChatPage = () => {
       onValue(chatMessagesRef, (snapshot) => {
         const messagesData = snapshot.val();
         if (messagesData) {
+          console.log(messagesData);
+          
           const loadedMessages: Message[] = Object.keys(messagesData).map((key) => ({
             senderId: messagesData[key].senderId,
             text: messagesData[key].text,
             createdAt: new Date(messagesData[key].timestamp),
             isToxic: messagesData[key].isToxic
           }));
+          
+          console.log("d", loadedMessages);
+          
           setMessages(loadedMessages); // Update state with real-time data
         }
       });
@@ -255,7 +265,11 @@ const ChatPage = () => {
           <ChatCard
             key={chat._id}
             chatId={chat._id}
-            chatName={chat.chatName}
+            chatName={
+              chat.members.some((member: Member) => member.id === currentUser?._id)
+                ? chat.members.find((member: Member) => member.id !== currentUser?._id)?.name ?? 'Unknown'
+                : "chat.chatName"
+            }
             lastMessage={chat.lastMessage}
             createdAt={chat.createdAt}
             onClick={handleChatClick}
@@ -273,7 +287,7 @@ const ChatPage = () => {
               <h2 className="text-lg font-bold">
                 {chatPartner
                   ? chatPartner.name
-                  : chatList.find((chat) => chat._id === selectedChatId)?.chatName || "Unknown Chat"}
+                  : chatList.find((chat) => chat._id === selectedChatId)?.chatName || "Chat Box"}
               </h2>
             </div>
             <div className="flex-grow overflow-y-auto p-4">
