@@ -10,6 +10,6 @@ import { UserMapperProfile } from './mapper/user.mapper-profile';
   imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])],
   controllers: [UserController],
   providers: [UserService, UserRepository, UserMapperProfile],
-  exports: [UserRepository],
+  exports: [UserRepository, UserService],
 })
 export class UserModule { }

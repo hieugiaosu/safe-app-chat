@@ -7,6 +7,7 @@ import { ChatService } from './chat.service';
 import { Conversation, ConversationSchema } from './schema/conversation.schema';
 import { Message, MessageSchema } from './schema/message.schema';
 import { HttpModule } from '@nestjs/axios';
+import { UserModule } from '../user/user.module';
  
 @Module({
   imports: [
@@ -15,7 +16,8 @@ import { HttpModule } from '@nestjs/axios';
       { name: Message.name, schema: MessageSchema },
       { name: Conversation.name, schema: ConversationSchema },
     ]),
-    FirebaseModule
+    FirebaseModule,
+    UserModule
   ],
   controllers: [ChatController],
   providers: [
